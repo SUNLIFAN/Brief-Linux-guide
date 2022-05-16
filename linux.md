@@ -139,3 +139,52 @@
         (2) 直接删掉该swp文件即可
 ```
 
+## 3-shell
+
+### overview
+
+```
+概论
+
+shell是我们通过命令行与操作系统沟通的语言。
+
+shell脚本可以直接在命令行中执行，也可以将一套逻辑组织成一个文件，方便复用。
+AC Terminal中的命令行可以看成是一个“shell脚本在逐行执行”。
+
+Linux中常见的shell脚本有很多种，常见的有：
+
+    Bourne Shell(/usr/bin/sh或/bin/sh)
+    Bourne Again Shell(/bin/bash)
+    C Shell(/usr/bin/csh)
+    K Shell(/usr/bin/ksh)
+    zsh
+    …
+
+Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
+文件开头需要写#! /bin/bash，指明bash为脚本解释器。
+```
+
+### comment
+
+```
+单行注释
+
+每行中#之后的内容均是注释。
+
+# 这是一行注释
+
+echo 'Hello World'  #  这也是注释
+
+多行注释
+
+格式：
+
+:<<EOF
+第一行注释
+第二行注释
+第三行注释
+EOF
+
+其中EOF可以换成其它任意字符串。
+```
+
