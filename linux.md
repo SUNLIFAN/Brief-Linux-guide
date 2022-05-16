@@ -143,7 +143,7 @@
 
 ### overview
 
-```
+```shell
 概论
 
 shell是我们通过命令行与操作系统沟通的语言。
@@ -166,7 +166,7 @@ Linux系统中一般默认使用bash，所以接下来讲解bash中的语法。
 
 ### comment
 
-```
+```shell
 单行注释
 
 每行中#之后的内容均是注释。
@@ -190,7 +190,7 @@ EOF
 
 ### variable
 
-```
+```shell
 定义变量
 
 定义变量，不需要加$符号，例如：
@@ -270,7 +270,7 @@ echo ${name:0:5}  # 提取从0开始的5个字符
 
 ### default variable
 
-```
+```shell
 文件参数变量
 
 在执行shell脚本时，可以向脚本传递参数。$1是第一个参数，$2是第二个参数，以此类推。特殊的，$0是文件名（包含路径）。例如：
@@ -309,7 +309,7 @@ $(command) 	返回command这条命令的stdout（可嵌套）
 
 ### array
 
-```
+```shell
 数组中可以存放多个不同类型的值，只支持一维数组，初始化时不需要指明数组大小。
 数组下标从0开始。
 定义
@@ -457,7 +457,7 @@ echo `expr $a \| $b`  # 输出3
 
 ### read
 
-```
+```shell
 read命令用于从标准输入中读取单行数据。当读到文件结束符时，exit code为1，否则为0。
 
 参数说明
@@ -479,7 +479,7 @@ acwing yxc  # 标准输出
 
 ### echo
 
-```
+```shell
 echo用于输出字符串。命令格式：
 
 echo STRING
@@ -543,7 +543,7 @@ Wed Sep 1 11:45:33 CST 2021
 
 ### printf
 
-```
+```shell
 printf命令用于格式化输出，类似于C/C++中的printf函数。
 
 默认不会在字符串末尾添加换行符。
@@ -567,5 +567,418 @@ printf "%d * %d = %d\n"  2 3 `expr 2 \* 3` # 表达式的值作为参数
 123.12    .
 My name is yxc
 2 * 3 = 6
+```
+
+### test
+
+```shell
+逻辑运算符&&和||
+
+    && 表示与，|| 表示或
+    二者具有短路原则：
+    expr1 && expr2：当expr1为假时，直接忽略expr2
+    expr1 || expr2：当expr1为真时，直接忽略expr2
+    表达式的exit code为0，表示真；为非零，表示假。（与C/C++中的定义相反）
+
+test命令
+
+在命令行中输入man test，可以查看test命令的用法。
+
+test命令用于判断文件类型，以及对变量做比较。
+
+test命令用exit code返回结果，而不是使用stdout。0表示真，非0表示假。
+
+例如：
+
+test 2 -lt 3  # 为真，返回值为0
+echo $?  # 输出上个命令的返回值，输出0
+
+acs@9e0ebfcd82d7:~$ ls  # 列出当前目录下的所有文件
+homework  output.txt  test.sh  tmp
+acs@9e0ebfcd82d7:~$ test -e test.sh && echo "exist" || echo "Not exist"
+exist  # test.sh 文件存在
+acs@9e0ebfcd82d7:~$ test -e test2.sh && echo "exist" || echo "Not exist"
+Not exist  # testh2.sh 文件不存在
+
+文件类型判断
+
+命令格式：
+
+test -e filename  # 判断文件是否存在
+
+测试参数 	代表意义
+-e 	文件是否存在
+-f 	是否为文件
+-d 	是否为目录
+文件权限判断
+
+命令格式：
+
+test -r filename  # 判断文件是否可读
+
+测试参数 	代表意义
+-r 	文件是否可读
+-w 	文件是否可写
+-x 	文件是否可执行
+-s 	是否为非空文件
+整数间的比较
+
+命令格式：
+
+test $a -eq $b  # a是否等于b
+
+测试参数 	代表意义
+-eq 	a是否等于b
+-ne 	a是否不等于b
+-gt 	a是否大于b
+-lt 	a是否小于b
+-ge 	a是否大于等于b
+-le 	a是否小于等于b
+字符串比较
+测试参数 	代表意义
+test -z STRING 	判断STRING是否为空，如果为空，则返回true
+test -n STRING 	判断STRING是否非空，如果非空，则返回true（-n可以省略）
+test str1 == str2 	判断str1是否等于str2
+test str1 != str2 	判断str1是否不等于str2
+多重条件判定
+
+命令格式：
+
+test -r filename -a -x filename
+
+测试参数 	代表意义
+-a 	两条件是否同时成立
+-o 	两条件是否至少一个成立
+! 	取反。如 test ! -x file，当file不可执行时，返回true
+判断符号[]
+
+[]与test用法几乎一模一样，更常用于if语句中。另外[[]]是[]的加强版，支持的特性更多。
+
+例如：
+
+[ 2 -lt 3 ]  # 为真，返回值为0
+echo $?  # 输出上个命令的返回值，输出0
+
+acs@9e0ebfcd82d7:~$ ls  # 列出当前目录下的所有文件
+homework  output.txt  test.sh  tmp
+acs@9e0ebfcd82d7:~$ [ -e test.sh ] && echo "exist" || echo "Not exist"
+exist  # test.sh 文件存在
+acs@9e0ebfcd82d7:~$ [ -e test2.sh ] && echo "exist" || echo "Not exist"
+Not exist  # testh2.sh 文件不存在
+
+注意：
+
+    []内的每一项都要用空格隔开
+    中括号内的变量，最好用双引号括起来
+    中括号内的常数，最好用单或双引号括起来
+
+例如：
+
+name="acwing yxc"
+[ $name == "acwing yxc" ]  # 错误，等价于 [ acwing yxc == "acwing yxc" ]，参数太多
+[ "$name" == "acwing yxc" ]  # 正确
+```
+
+### conditional
+
+```shell
+if…then形式
+
+类似于C/C++中的if-else语句。
+单层if
+
+命令格式：
+
+if condition
+then
+    语句1
+    语句2
+    ...
+fi
+
+示例：
+
+a=3
+b=4
+
+if [ "$a" -lt "$b" ] && [ "$a" -gt 2 ]
+then
+    echo ${a}在范围内
+fi
+
+输出结果：
+
+3在范围内
+
+单层if-else
+
+命令格式
+
+if condition
+then
+    语句1
+    语句2
+    ...
+else
+    语句1
+    语句2
+    ...
+fi
+
+示例：
+
+a=3
+b=4
+
+if ! [ "$a" -lt "$b" ]
+then
+    echo ${a}不小于${b}
+else
+    echo ${a}小于${b}
+fi
+
+输出结果：
+
+3小于4
+
+多层if-elif-elif-else
+
+命令格式
+
+if condition
+then
+    语句1
+    语句2
+    ...
+elif condition
+then
+    语句1
+    语句2
+    ...
+elif condition
+then
+    语句1
+    语句2
+else
+    语句1
+    语句2
+    ...
+fi
+
+示例：
+
+a=4
+
+if [ $a -eq 1 ]
+then
+    echo ${a}等于1
+elif [ $a -eq 2 ]
+then
+    echo ${a}等于2
+elif [ $a -eq 3 ]
+then
+    echo ${a}等于3
+else
+    echo 其他
+fi
+
+输出结果：
+
+其他
+```
+
+```shell
+case…esac形式
+
+类似于C/C++中的switch语句。
+
+命令格式
+
+case $变量名称 in
+    值1)
+        语句1
+        语句2
+        ...
+        ;;  # 类似于C/C++中的break
+    值2)
+        语句1
+        语句2
+        ...
+        ;;
+    *)  # 类似于C/C++中的default
+        语句1
+        语句2
+        ...
+        ;;
+esac
+
+示例：
+
+a=4
+
+case $a in
+    1)
+        echo ${a}等于1
+        ;;  
+    2)
+        echo ${a}等于2
+        ;;  
+    3)                                                
+        echo ${a}等于3
+        ;;  
+    *)
+        echo 其他
+        ;;  
+esac
+
+输出结果：
+
+其他
+```
+
+### iteration
+
+```shell
+for…in…do…done
+
+命令格式：
+
+for var in val1 val2 val3
+do
+    语句1
+    语句2
+    ...
+done
+
+示例1，输出a 2 cc，每个元素一行：
+
+for i in a 2 cc
+do
+    echo $i
+done
+
+示例2，输出当前路径下的所有文件名，每个文件名一行：
+
+for file in `ls`
+do
+    echo $file
+done
+
+示例3，输出1-10
+
+for i in $(seq 1 10)
+do
+    echo $i
+done
+
+示例4，使用{1..10} 或者 {a..z}
+
+for i in {a..z}
+do
+    echo $i
+done
+
+for ((…;…;…)) do…done
+
+命令格式：
+
+for ((expression; condition; expression))
+do
+    语句1
+    语句2
+done
+
+示例，输出1-10，每个数占一行：
+
+for ((i=1; i<=10; i++))
+do
+    echo $i
+done
+
+while…do…done循环
+
+命令格式：
+
+while condition
+do
+    语句1
+    语句2
+    ...
+done
+
+示例，文件结束符为Ctrl+d，输入文件结束符后read指令返回false。
+
+while read name
+do
+    echo $name
+done
+
+until…do…done循环
+
+当条件为真时结束。
+
+命令格式：
+
+until condition
+do
+    语句1
+    语句2
+    ...
+done
+
+示例，当用户输入yes或者YES时结束，否则一直等待读入。
+
+until [ "${word}" == "yes" ] || [ "${word}" == "YES" ]
+do
+    read -p "Please input yes/YES to stop this program: " word
+done
+
+break命令
+
+跳出当前一层循环，注意与C/C++不同的是：break不能跳出case语句。
+
+示例
+
+while read name
+do
+    for ((i=1;i<=10;i++))
+    do
+        case $i in
+            8)
+                break
+                ;;
+            *)
+                echo $i
+                ;;
+        esac
+    done
+done
+
+该示例每读入非EOF的字符串，会输出一遍1-7。
+该程序可以输入Ctrl+d文件结束符来结束，也可以直接用Ctrl+c杀掉该进程。
+continue命令
+
+跳出当前循环。
+
+示例：
+
+for ((i=1;i<=10;i++))
+do
+    if [ `expr $i % 2` -eq 0 ]
+    then
+        continue
+    fi
+    echo $i
+done
+
+该程序输出1-10中的所有奇数。
+死循环的处理方式
+
+如果AC Terminal可以打开该程序，则输入Ctrl+c即可。
+
+否则可以直接关闭进程：
+
+    使用top命令找到进程的PID
+    输入kill -9 PID即可关掉此进程
 ```
 
