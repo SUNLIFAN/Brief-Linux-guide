@@ -455,3 +455,89 @@ echo `expr $c \| $d`  # 输出5
 echo `expr $a \| $b`  # 输出3
 ```
 
+### read
+
+```
+read命令用于从标准输入中读取单行数据。当读到文件结束符时，exit code为1，否则为0。
+
+参数说明
+
+    -p: 后面可以接提示信息
+    -t：后面跟秒数，定义输入字符的等待时间，超过等待时间后会自动忽略此命令
+
+实例：
+
+acs@9e0ebfcd82d7:~$ read name  # 读入name的值
+acwing yxc  # 标准输入
+acs@9e0ebfcd82d7:~$ echo $name  # 输出name的值
+acwing yxc  #标准输出
+acs@9e0ebfcd82d7:~$ read -p "Please input your name: " -t 30 name  # 读入name的值，等待时间30秒
+Please input your name: acwing yxc  # 标准输入
+acs@9e0ebfcd82d7:~$ echo $name  # 输出name的值
+acwing yxc  # 标准输出
+```
+
+### echo
+
+```
+echo用于输出字符串。命令格式：
+
+echo STRING
+
+显示普通字符串
+
+echo "Hello AC Terminal"
+echo Hello AC Terminal  # 引号可以省略
+
+显示转义字符
+
+echo "\"Hello AC Terminal\""  # 注意只能使用双引号，如果使用单引号，则不转义
+echo \"Hello AC Terminal\"  # 也可以省略双引号
+
+显示变量
+
+name=yxc
+echo "My name is $name"  # 输出 My name is yxc
+
+显示换行
+
+echo -e "Hi\n"  # -e 开启转义
+echo "acwing"
+
+输出结果：
+
+Hi
+
+acwing
+
+显示不换行
+
+echo -e "Hi \c" # -e 开启转义 \c 不换行
+echo "acwing"
+
+输出结果：
+
+Hi acwing
+
+显示结果定向至文件
+
+echo "Hello World" > output.txt  # 将内容以覆盖的方式输出到output.txt中
+
+原样输出字符串，不进行转义或取变量(用单引号)
+
+name=acwing
+echo '$name\"'
+
+输出结果
+
+$name\"
+
+显示命令的执行结果
+
+echo `date`
+
+输出结果：
+
+Wed Sep 1 11:45:33 CST 2021
+```
+
