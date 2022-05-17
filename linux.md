@@ -1227,3 +1227,339 @@ acs@9e0ebfcd82d7:~$ ./test2.sh
 My name is: yxc
 ````
 
+## 4-shell and scp
+
+### ssh
+
+```shell
+基本用法
+
+远程登录服务器：
+
+ssh user@hostname
+
+    user: 用户名
+    hostname: IP地址或域名
+
+第一次登录时会提示：
+
+The authenticity of host '123.57.47.211 (123.57.47.211)' can't be established.
+ECDSA key fingerprint is SHA256:iy237yysfCe013/l+kpDGfEG9xxHxm0dnxnAbJTPpG8.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+
+输入yes，然后回车即可。
+这样会将该服务器的信息记录在~/.ssh/known_hosts文件中。
+
+然后输入密码即可登录到远程服务器中。
+
+默认登录端口号为22。如果想登录某一特定端口：
+
+ssh user@hostname -p 22
+
+配置文件
+
+创建文件 ~/.ssh/config。
+
+然后在文件中输入：
+
+Host myserver1
+    HostName IP地址或域名
+    User 用户名
+
+Host myserver2
+    HostName IP地址或域名
+    User 用户名
+
+之后再使用服务器时，可以直接使用别名myserver1、myserver2。
+密钥登录
+
+创建密钥：
+
+ssh-keygen
+
+然后一直回车即可。
+
+执行结束后，~/.ssh/目录下会多两个文件：
+
+    id_rsa：私钥
+    id_rsa.pub：公钥
+
+之后想免密码登录哪个服务器，就将公钥传给哪个服务器即可。
+
+例如，想免密登录myserver服务器。则将公钥中的内容，复制到myserver中的~/.ssh/authorized_keys文件里即可。
+
+也可以使用如下命令一键添加公钥：
+
+ssh-copy-id myserver
+
+执行命令
+
+命令格式：
+
+ssh user@hostname command
+
+例如：
+
+ssh user@hostname ls -a
+
+或者
+
+# 单引号中的$i可以求值
+ssh myserver 'for ((i = 0; i < 10; i ++ )) do echo $i; done'
+
+或者
+
+# 双引号中的$i不可以求值
+ssh myserver "for ((i = 0; i < 10; i ++ )) do echo $i; done"
+```
+
+### scp
+
+```shell
+基本用法
+
+命令格式：
+
+scp source destination
+
+将source路径下的文件复制到destination中
+
+一次复制多个文件：
+
+scp source1 source2 destination
+
+复制文件夹：
+
+scp -r ~/tmp myserver:/home/acs/
+
+将本地家目录中的tmp文件夹复制到myserver服务器中的/home/acs/目录下。
+
+scp -r ~/tmp myserver:homework/
+
+将本地家目录中的tmp文件夹复制到myserver服务器中的~/homework/目录下。
+
+scp -r myserver:homework .
+
+将myserver服务器中的~/homework/文件夹复制到本地的当前路径下。
+
+指定服务器的端口号：
+
+scp -P 22 source1 source2 destination
+
+注意： scp的-r -P等参数尽量加在source和destination之前。
+使用scp配置其他服务器的vim和tmux
+
+scp ~/.vimrc ~/.tmux.conf myserver:
+```
+
+## 5-git
+
+```shell
+1.1. git基本概念
+
+    工作区：仓库的目录。工作区是独立于各个分支的。
+    暂存区：数据暂时存放的区域，类似于工作区写入版本库前的缓存区。暂存区是独立于各个分支的。
+    版本库：存放所有已经提交到本地仓库的代码版本
+    版本结构：树结构，树中每个节点代表一个代码版本。
+
+1.2 git常用命令
+
+    git config --global user.name xxx：设置全局用户名，信息记录在~/.gitconfig文件中
+    git config --global user.email xxx@xxx.com：设置全局邮箱地址，信息记录在~/.gitconfig文件中
+    git init：将当前目录配置成git仓库，信息记录在隐藏的.git文件夹中
+    git add XX：将XX文件添加到暂存区
+        git add .：将所有待加入暂存区的文件加入暂存区
+    git rm --cached XX：将文件从仓库索引目录中删掉
+    git commit -m "给自己看的备注信息"：将暂存区的内容提交到当前分支
+    git status：查看仓库状态
+    git diff XX：查看XX文件相对于暂存区修改了哪些内容
+    git log：查看当前分支的所有版本
+    git reflog：查看HEAD指针的移动历史（包括被回滚的版本）
+    git reset --hard HEAD^ 或 git reset --hard HEAD~：将代码库回滚到上一个版本
+        git reset --hard HEAD^^：往上回滚两次，以此类推
+        git reset --hard HEAD~100：往上回滚100个版本
+        git reset --hard 版本号：回滚到某一特定版本
+    git checkout — XX或git restore XX：将XX文件尚未加入暂存区的修改全部撤销
+    git remote add origin git@git.acwing.com:xxx/XXX.git：将本地仓库关联到远程仓库
+    git push -u (第一次需要-u以后不需要)：将当前分支推送到远程仓库
+        git push origin branch_name：将本地的某个分支推送到远程仓库
+    git clone git@git.acwing.com:xxx/XXX.git：将远程仓库XXX下载到当前目录下
+    git checkout -b branch_name：创建并切换到branch_name这个分支
+    git branch：查看所有分支和当前所处分支
+    git checkout branch_name：切换到branch_name这个分支
+    git merge branch_name：将分支branch_name合并到当前分支上
+    git branch -d branch_name：删除本地仓库的branch_name分支
+    git branch branch_name：创建新分支
+    git push --set-upstream origin branch_name：设置本地的branch_name分支对应远程仓库的branch_name分支
+    git push -d origin branch_name：删除远程仓库的branch_name分支
+    git pull：将远程仓库的当前分支与本地仓库的当前分支合并
+        git pull origin branch_name：将远程仓库的branch_name分支与本地仓库的当前分支合并
+    git branch --set-upstream-to=origin/branch_name1 branch_name2：将远程的branch_name1分支与本地的branch_name2分支对应
+    git checkout -t origin/branch_name 将远程的branch_name分支拉取到本地
+    git stash：将工作区和暂存区中尚未提交的修改存入栈中
+    git stash apply：将栈顶存储的修改恢复到当前分支，但不删除栈顶元素
+    git stash drop：删除栈顶存储的修改
+    git stash pop：将栈顶存储的修改恢复到当前分支，同时删除栈顶元素
+    git stash list：查看栈中所有元素
+```
+
+## 7-pipe, some frequently used cmds, env variable
+
+### pipe
+
+```shell
+概念
+
+管道类似于文件重定向，可以将前一个命令的stdout重定向到下一个命令的stdin。
+要点
+
+    管道命令仅处理stdout，会忽略stderr。
+    管道右边的命令必须能接受stdin。
+    多个管道命令可以串联。
+
+与文件重定向的区别
+
+    文件重定向左边为命令，右边为文件。
+    管道左右两边均为命令，左边有stdout，右边有stdin。
+```
+
+### env variable
+
+```shell
+概念
+
+Linux系统中会用很多环境变量来记录配置信息。
+环境变量类似于全局变量，可以被各个进程访问到。我们可以通过修改环境变量来方便地修改系统配置。
+查看
+
+列出当前环境下的所有环境变量：
+
+env  # 显示当前用户的变量
+set  # 显示当前shell的变量，包括当前用户的变量;
+export  # 显示当前导出成用户变量的shell变量
+
+输出某个环境变量的值：
+
+echo $PATH
+
+修改
+
+环境变量的定义、修改、删除操作可以参考3. shell语法——变量这一节的内容。
+
+为了将对环境变量的修改应用到未来所有环境下，可以将修改命令放到~/.bashrc文件中。
+修改完~/.bashrc文件后，记得执行source ~/.bashrc，来将修改应用到当前的bash环境下。
+
+为何将修改命令放到~/.bashrc，就可以确保修改会影响未来所有的环境呢？
+
+    每次启动bash，都会先执行~/.bashrc。
+    每次ssh登陆远程服务器，都会启动一个bash命令行给我们。
+    每次tmux新开一个pane，都会启动一个bash命令行给我们。
+    所以未来所有新开的环境都会加载我们修改的内容。
+
+常见环境变量
+
+    HOME：用户的家目录。
+    PATH：可执行文件（命令）的存储路径。路径与路径之间用:分隔。当某个可执行文件同时出现在多个路径中时，会选择从左到右数第一个路径中的执行。下列所有存储路径的环境变量，均采用从左到右的优先顺序。
+    LD_LIBRARY_PATH：用于指定动态链接库(.so文件)的路径，其内容是以冒号分隔的路径列表。
+    C_INCLUDE_PATH：C语言的头文件路径，内容是以冒号分隔的路径列表。
+    CPLUS_INCLUDE_PATH：CPP的头文件路径，内容是以冒号分隔的路径列表。
+    PYTHONPATH：Python导入包的路径，内容是以冒号分隔的路径列表。
+    JAVA_HOME：jdk的安装目录。
+    CLASSPATH：存放Java导入类的路径，内容是以冒号分隔的路径列表。
+```
+
+### frequently used cmds
+
+```shell
+系统状况
+
+    top：查看所有进程的信息（Linux的任务管理器）
+        打开后，输入M：按使用内存排序
+        打开后，输入P：按使用CPU排序
+        打开后，输入q：退出
+    df -h：查看硬盘使用情况
+    free -h：查看内存使用情况
+    du -sh：查看当前目录占用的硬盘空间
+    ps aux：查看所有进程
+    kill -9 pid：杀死编号为pid的进程
+        传递某个具体的信号：kill -s SIGTERM pid
+    netstat -nt：查看所有网络连接
+    w：列出当前登陆的用户
+    ping www.baidu.com：检查是否连网
+
+文件权限
+
+    chmod：修改文件权限
+        chmod +x xxx：给xxx添加可执行权限
+        chmod -x xxx：去掉xxx的可执行权限
+        chmod 777 xxx：将xxx的权限改成777
+        chmod 777 xxx -R：递归修改整个文件夹的权限
+
+文件检索
+
+    find /path/to/directory/ -name '*.py'：搜索某个文件路径下的所有*.py文件
+    grep xxx：从stdin中读入若干行数据，如果某行中包含xxx，则输出该行；否则忽略该行。
+    wc：统计行数、单词数、字节数
+        既可以从stdin中直接读入内容；也可以在命令行参数中传入文件名列表；
+        wc -l：统计行数
+        wc -w：统计单词数
+        wc -c：统计字节数
+    tree：展示当前目录的文件结构
+        tree /path/to/directory/：展示某个目录的文件结构
+        tree -a：展示隐藏文件
+    ag xxx：搜索当前目录下的所有文件，检索xxx字符串
+    cut：分割一行内容
+        从stdin中读入多行数据
+        echo $PATH | cut -d ':' -f 3,5：输出PATH用:分割后第3、5列数据
+        echo $PATH | cut -d ':' -f 3-5：输出PATH用:分割后第3-5列数据
+        echo $PATH | cut -c 3,5：输出PATH的第3、5个字符
+        echo $PATH | cut -c 3-5：输出PATH的第3-5个字符
+    sort：将每行内容按字典序排序
+        可以从stdin中读取多行数据
+        可以从命令行参数中读取文件名列表
+    xargs：将stdin中的数据用空格或回车分割成命令行参数
+        find . -name '*.py' | xargs cat | wc -l：统计当前目录下所有python文件的总行数
+
+查看文件内容
+
+    more：浏览文件内容
+        回车：下一行
+        空格：下一页
+        b：上一页
+        q：退出
+    less：与more类似，功能更全
+        回车：下一行
+        y：上一行
+        Page Down：下一页
+        Page Up：上一页
+        q：退出
+    head -3 xxx：展示xxx的前3行内容
+        同时支持从stdin读入内容
+    tail -3 xxx：展示xxx末尾3行内容
+        同时支持从stdin读入内容
+
+用户相关
+
+    history：展示当前用户的历史操作。内容存放在~/.bash_history中
+
+工具
+
+    md5sum：计算md5哈希值
+        可以从stdin读入内容
+        也可以在命令行参数中传入文件名列表；
+    time command：统计command命令的执行时间
+    ipython3：交互式python3环境。可以当做计算器，或者批量管理文件。
+        ! echo "Hello World"：!表示执行shell脚本
+    watch -n 0.1 command：每0.1秒执行一次command命令
+    tar：压缩文件
+        tar -zcvf xxx.tar.gz /path/to/file/*：压缩
+        tar -zxvf xxx.tar.gz：解压缩
+    diff xxx yyy：查找文件xxx与yyy的不同点
+
+安装软件
+
+    sudo command：以root身份执行command命令
+    apt-get install xxx：安装软件
+    pip install xxx --user --upgrade：安装python包
+```
+
