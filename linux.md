@@ -1106,7 +1106,7 @@ yxc
 
 ### exit code
 
-```
+```shell
 exit命令用来退出当前shell进程，并返回一个退出状态；使用$?可以接收这个退出状态。
 
 exit命令可以接受一个整数值作为参数，代表退出状态。如果不指定，默认状态值是 0。
@@ -1140,4 +1140,90 @@ arguments not valid
 acs@9e0ebfcd82d7:~$ echo $?  # 传入参数个数不是1，则非正常退出，exit code为1
 1
 ```
+
+### redirect
+
+```shell
+每个进程默认打开3个文件描述符：
+
+    stdin标准输入，从命令行读取数据，文件描述符为0
+    stdout标准输出，向命令行输出数据，文件描述符为1
+    stderr标准错误输出，向命令行输出数据，文件描述符为2
+
+可以用文件重定向将这三个文件重定向到其他文件中。
+重定向命令列表
+命令 	说明
+command > file 	将stdout重定向到file中
+command < file 	将stdin重定向到file中
+command >> file 	将stdout以追加方式重定向到file中
+command n> file 	将文件描述符n重定向到file中
+command n>> file 	将文件描述符n以追加方式重定向到file中
+输入和输出重定向
+
+echo -e "Hello \c" > output.txt  # 将stdout重定向到output.txt中
+echo "World" >> output.txt  # 将字符串追加到output.txt中
+
+read str < output.txt  # 从output.txt中读取字符串
+
+echo $str  # 输出结果：Hello World
+
+同时重定向stdin和stdout
+
+创建bash脚本：
+
+#! /bin/bash
+
+read a
+read b
+
+echo $(expr "$a" + "$b")
+
+创建input.txt，里面的内容为：
+
+3
+4
+
+执行命令：
+
+acs@9e0ebfcd82d7:~$ chmod +x test.sh  # 添加可执行权限
+acs@9e0ebfcd82d7:~$ ./test.sh < input.txt > output.txt  # 从input.txt中读取内容，将输出写入output.txt中
+acs@9e0ebfcd82d7:~$ cat output.txt  # 查看output.txt中的内容
+7
+```
+
+### external file
+
+````shell
+类似于C/C++中的include操作，bash也可以引入其他文件中的代码。
+
+语法格式：
+
+. filename  # 注意点和文件名之间有一个空格
+
+或
+
+source filename
+
+示例
+
+创建test1.sh，内容为：
+
+#! /bin/bash
+
+name=yxc  # 定义变量name
+
+然后创建test2.sh，内容为：
+
+#! /bin/bash
+
+source test1.sh # 或 . test1.sh
+
+echo My name is: $name  # 可以使用test1.sh中的变量
+
+执行命令：
+
+acs@9e0ebfcd82d7:~$ chmod +x test2.sh 
+acs@9e0ebfcd82d7:~$ ./test2.sh 
+My name is: yxc
+````
 
